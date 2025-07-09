@@ -1,7 +1,7 @@
 import axiosClient from "axios";
 
 const axios = axiosClient.create({
-  baseURL: "http://192.168.0.103:8000/api",
+  baseURL: "http://192.168.0.11:8000/api",
   headers: {
     Accept: "application/json",
     "Content-Type": "multipart/form-data"

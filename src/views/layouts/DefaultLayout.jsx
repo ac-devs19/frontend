@@ -14,7 +14,7 @@ const DefaultLayout = () => {
   const [open, setOpen] = useState(0)
   const route = useLocation()
   const navigate = useNavigate()
-  const { user, logout, loading } = useAuthContext()
+  const { user, logout, loading, status } = useAuthContext()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [securityOpen, setSecurityOpen] = useState(false)
@@ -82,6 +82,12 @@ const DefaultLayout = () => {
   }, [])
 
   const getDocumentNotif = async () => {
+    if (user?.role === 'student') {
+      await axios.get('/student/get-document-notif')
+      .then(({ data }) => {
+        setDocumentNotif(data)
+      })
+    }
     await axios.get('/registrar/get-document-notif')
       .then(({ data }) => {
         setDocumentNotif(data)
@@ -89,6 +95,12 @@ const DefaultLayout = () => {
   }
 
   const readDocumentNotif = async (id) => {
+    if (user?.role === 'student') {
+      await axios.post('/student/read-document-notif', { id })
+      .then(() => {
+        getDocumentNotif()
+      })
+    }
     await axios.post('/registrar/read-document-notif', { id })
       .then(() => {
         getDocumentNotif()
@@ -96,6 +108,12 @@ const DefaultLayout = () => {
   }
 
   const getCredentialNotif = async () => {
+    if (user?.role === 'student') {
+      await axios.get('/student/get-credential-notif')
+      .then(({ data }) => {
+        setCredentialNotif(data)
+      })
+    }
     await axios.get('/registrar/get-credential-notif')
       .then(({ data }) => {
         setCredentialNotif(data)
@@ -103,6 +121,12 @@ const DefaultLayout = () => {
   }
 
   const readCredenttialNotif = async (id) => {
+    if (user?.role === 'student') {
+      await axios.post('/student/read-credential-notif', { id })
+      .then(() => {
+        getCredentialNotif()
+      })
+    }
     await axios.post('/registrar/read-credential-notif', { id })
       .then(() => {
         getCredentialNotif()
@@ -126,6 +150,7 @@ const DefaultLayout = () => {
               dialogOpen={() => setDialogOpen(!dialogOpen)}
               notif={notif}
               payNotif={payNotif}
+              status={status}
             />
           </Card>
           <Drawer placement='left' open={drawerOpen} onClose={() => setDrawerOpen(!drawerOpen)} className='p-2 overflow-y-scroll w-[272px]'>
@@ -139,6 +164,7 @@ const DefaultLayout = () => {
               dialogOpen={() => setDialogOpen(!dialogOpen)}
               notif={notif}
               payNotif={payNotif}
+              status={status}
             />
           </Drawer>
           <div className="lg:ml-[290px] p-4 max-sm:p-2">
@@ -177,7 +203,7 @@ const DefaultLayout = () => {
               <XMarkIcon className="h-5 w-5 opacity-60" />
             </IconButton>
           </div>
-          {user?.role === 'admin' && (
+          {(user?.role === 'admin' || user?.role === 'student') && (
             <Tabs value="document_notif" className="space-y-4">
               <TabsHeader className="rounded-none bg-transparent space-x-2 p-0"
                 indicatorProps={{
@@ -189,7 +215,7 @@ const DefaultLayout = () => {
               </TabsHeader>
               <TabsBody>
                 <TabPanel value="document_notif" className='p-0 space-y-2'>
-                  {documentNotif.map((notif, index) => (
+                  {user?.role === 'admin' && documentNotif.map((notif, index) => (
                     <div onClick={() => {
                       setDrawerNotifOpen(false)
                       navigate(`/registrar/documents/records/${notif.submit.student.student_number}/${notif.submit.record[0].document.id}`)
@@ -201,9 +227,21 @@ const DefaultLayout = () => {
                       <p className='text-xs font-normal text-end text-gray-900'>{formatDateTime(notif.created_at)}</p>
                     </div>
                   ))}
+                  {user?.role === 'student' && documentNotif.map((notif, index) => (
+                    <div onClick={() => {
+                      setDrawerNotifOpen(false)
+                      navigate(`/student/my-documents/${notif.submit.record[0].document.document_name}/${notif.submit.record[0].document.id}`)
+                      if (notif.notification_status === 'unread') {
+                        readDocumentNotif(notif.id)
+                      }
+                    }} key={index} className={`p-2 rounded-lg space-y-2 cursor-pointer ${notif.notification_status === 'unread' && 'bg-blue-100/50 border border-blue-200' || notif.notification_status === 'read' && 'bg-gray-50 border border-gray-200'}`}>
+                      <span className='text-sm font-pregular'>Your submission of <span className="text-blue-500 font-pmedium">{notif.submit.record[0].document.document_name}</span> has been <span className={`font-pmedium ${notif.submit_status === 'confirm' && 'text-green-500' || notif.submit_status === 'decline' && 'text-red-500'}`}>{notif.submit_status === 'confirm' && 'Confirmed' || notif.submit_status === 'decline' && 'Declined'}</span> by the admin.</span>
+                      <p className='text-xs font-normal text-end text-gray-900'>{formatDateTime(notif.created_at)}</p>
+                    </div>
+                  ))}
                 </TabPanel>
                 <TabPanel value="credential_notif" className='p-0 space-y-2'>
-                  {credentialNotif.map((notif, index) => (
+                  {user?.role === 'admin' && credentialNotif.map((notif, index) => (
                     <div onClick={() => {
                       setDrawerNotifOpen(false)
                       navigate(`/registrar/credentials/requests/${notif.request.request_number}`)
@@ -212,6 +250,18 @@ const DefaultLayout = () => {
                       }
                     }} key={index} className={`p-2 rounded-lg space-y-2 border border-gray-200 cursor-pointer ${notif.notification_status === 'unread' && 'bg-blue-100/50 border border-blue-200' || notif.notification_status === 'read' && 'bg-gray-50 border border-gray-200'}`}>
                       <span className='text-sm font-normal text-gray-900'>{notif.request.student.information.first_name} {notif.request.student.information.last_name} has {notif.request_status === 'request' && 'requested' || notif.request_status === 'paid' && 'completed the payment for' || notif.request_status === 'claim' && 'requested to claim'} a {notif.request.request_credential.credential.credential_name}.</span>
+                      <p className='text-xs font-normal text-end text-gray-900'>{formatDateTime(notif.created_at)}</p>
+                    </div>
+                  ))}
+                  {user?.role === 'student' && credentialNotif.map((notif, index) => (
+                    <div onClick={() => {
+                      setDrawerNotifOpen(false)
+                      navigate(`/student/my-credentials/request-detail/${notif.request.request_number}`)
+                      if (notif.notification_status === 'unread') {
+                        readCredenttialNotif(notif.id)
+                      }
+                    }} key={index} className={`p-2 rounded-lg space-y-2 border border-gray-200 cursor-pointer ${notif.notification_status === 'unread' && 'bg-blue-100/50 border border-blue-200' || notif.notification_status === 'read' && 'bg-gray-50 border border-gray-200'}`}>
+                      <span className='text-sm font-pregular'>Your request for a <span className="text-blue-500 font-pmedium">{notif.request.request_credential.credential.credential_name}</span> {notif.request_status === 'receive' ? 'is now ready for a' : 'has been'}{notif.request_status !== 'receive' ? ' ' : ''}{notif.request_status === 'paid' && 'marked as'} <span className={`font-pmedium ${notif.request_status === 'confirm' && 'text-green-500' || notif.request_status === 'decline' && 'text-red-500' || notif.request_status === 'paid' && 'text-green-500' || notif.request_status === 'process' && 'text-cyan-500' || notif.request_status === 'receive' && 'text-indigo-500' || notif.request_status === 'complete' && 'text-green-500' || notif.request_status === 'cancel' && 'text-red-500'}`}>{notif.request_status === 'confirm' && 'Confirmed' || notif.request_status === 'decline' && 'Declined' || notif.request_status === 'paid' && 'Paid' || notif.request_status === 'process' && 'Processed' || notif.request_status === 'receive' && 'Claim' || notif.request_status === 'complete' && 'Completed' || notif.request_status === 'cancel' && 'Cancelled'}</span>{notif.request_status !== 'receive' ? ' ' : ''}{notif.request_status !== 'receive' && `by the ${notif.request_status === 'paid' ? 'cashier' : 'admin'}`}.</span>
                       <p className='text-xs font-normal text-end text-gray-900'>{formatDateTime(notif.created_at)}</p>
                     </div>
                   ))}
@@ -241,7 +291,7 @@ const DefaultLayout = () => {
   )
 }
 
-const NavigationList = ({ user, open, handleOpen, navigate, route, setDrawerOpen, dialogOpen, notif, payNotif }) => {
+const NavigationList = ({ user, open, handleOpen, navigate, route, setDrawerOpen, dialogOpen, notif, payNotif, status }) => {
   return (
     <div>
       <div className="flex items-center justify-between p-2">
@@ -252,7 +302,7 @@ const NavigationList = ({ user, open, handleOpen, navigate, route, setDrawerOpen
       </div>
       <List>
         <span className="font-medium text-sm py-2 capitalize">
-          {user?.role === 'admin' && user?.role || user?.role === 'cashier' && user?.role}
+          {user?.role}
         </span>
         <Accordion open={open === 1} icon={<ChevronDownIcon strokeWidth={2.5} className={`mx-auto h-4 w-4 transition-transform ${open === 1 ? "rotate-180" : ""}`} />} >
           <ListItem className="p-0">
@@ -260,7 +310,9 @@ const NavigationList = ({ user, open, handleOpen, navigate, route, setDrawerOpen
               <ListItemPrefix>
                 <img src={User} className="h-8 w-8" />
               </ListItemPrefix>
-              <span className="mr-auto text-sm font-normal">{user?.staff.information.first_name} {user?.staff.information.last_name}</span>
+              <span className="mr-auto text-sm font-normal">
+                {user?.role === 'student' ? `${user?.student.information.first_name} ${ user?.student.information.last_name}` : `${user?.staff.information.first_name} ${ user?.staff.information.last_name}`}
+              </span>
             </AccordionHeader>
           </ListItem>
           <AccordionBody className="py-1">
@@ -478,6 +530,40 @@ const NavigationList = ({ user, open, handleOpen, navigate, route, setDrawerOpen
               </List>
             </AccordionBody>
           </Accordion>
+        </List>
+      )}
+      {user?.role === 'student' && (
+        <List>
+          <span className="font-medium text-sm py-2">Main</span>
+          <ListItem onClick={() => {
+            navigate('/student/dashboard')
+            setDrawerOpen(false)
+          }} className={`focus:bg-blue-500 focus:text-white ${route.pathname === '/student/dashboard' && 'bg-blue-500 text-white hover:bg-blue-500 hover:text-white'}`}>
+            <ListItemPrefix>
+              <PresentationChartLineIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            <span className="mr-auto text-sm font-normal">Dashboard</span>
+          </ListItem>
+          <ListItem onClick={() => {
+            navigate('/student/my-documents')
+            setDrawerOpen(false)
+          }} className={`focus:bg-blue-500 focus:text-white ${route.pathname === '/student/my-documents' && 'bg-blue-500 text-white hover:bg-blue-500 hover:text-white'}`}>
+            <ListItemPrefix>
+              <FolderIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            <span className="mr-auto text-sm font-normal">My Documents</span>
+          </ListItem>
+          {status && status === 'complete' && (
+            <ListItem onClick={() => {
+            navigate('/student/my-credentials')
+            setDrawerOpen(false)
+          }} className={`focus:bg-blue-500 focus:text-white ${route.pathname === '/student/my-credentials' && 'bg-blue-500 text-white hover:bg-blue-500 hover:text-white'}`}>
+            <ListItemPrefix>
+              <DocumentTextIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            <span className="mr-auto text-sm font-normal">My Credentials</span>
+          </ListItem>
+          )}
         </List>
       )}
     </div>

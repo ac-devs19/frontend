@@ -13,8 +13,9 @@ export const AuthContext = ({ children }) => {
   const [email_address, setEmailAddress] = useState(null)
   const [otp, setOtp] = useState(null)
   const navigate = useNavigate()
+  const [status, setStatus] = useState(null)
 
-  const url = "http://192.168.0.103:8000/"
+  const url = "http://192.168.0.11:8000/"
 
   const setToken = (token) => {
     _setToken(token)
@@ -24,6 +25,16 @@ export const AuthContext = ({ children }) => {
       localStorage.removeItem('token')
     }
   }
+
+  useEffect(() => {
+      const getRecordStatus = async () => {
+        await axios.get('/student/get-record-status')
+          .then(({ data }) => {
+            setStatus(data)
+          })
+      }
+      getRecordStatus()
+    }, [])
 
   useEffect(() => {
     async function loadUser() {
@@ -149,7 +160,7 @@ export const AuthContext = ({ children }) => {
   }
 
   return (
-    <auth.Provider value={{ token, user, loading, btnLoading, error, email_address, otp, url, login, forgotPassword, verifyOtp, createNewPassword, changePassword, logout }}>
+    <auth.Provider value={{ token, user, loading, btnLoading, error, email_address, otp, url, status, login, forgotPassword, verifyOtp, createNewPassword, changePassword, logout }}>
       {children}
     </auth.Provider>
   )

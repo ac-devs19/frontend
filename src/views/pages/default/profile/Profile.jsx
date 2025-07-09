@@ -31,7 +31,7 @@ const Profile = () => {
     <div>
       <div className="h-20 flex items-center justify-between">
         <Breadcrumbs className="bg-transparent p-0">
-          <Link to={user?.role === 'admin' && '/registrar/dashboard' || user?.role === 'cashier' && '/cashier/dashboard'} className="opacity-60">
+          <Link to={user?.role === 'admin' && '/registrar/dashboard' || user?.role === 'cashier' && '/cashier/dashboard' || user?.role === 'student' && '/student/dashboard'} className="opacity-60">
             <HomeIcon className="w-5 h-5" />
           </Link>
           <span>My Profile</span>
@@ -60,7 +60,7 @@ const Profile = () => {
               <div className='flex items-center gap-4'>
                 <img src={User} className="h-24 w-24" />
                 <div className='flex flex-col'>
-                  <span className='text-base font-semibold'>{user?.staff.information.first_name} {user?.staff.information.last_name}</span>
+                  <span className='text-base font-semibold'>{user?.staff?.information.first_name || user?.student?.information.first_name} {user?.staff?.information.last_name || user?.student?.information.last_name}</span>
                   <span className='text-sm font-medium capitalize'>{user?.role}</span>
                 </div>
               </div>
@@ -72,27 +72,27 @@ const Profile = () => {
               <div className='grid grid-cols-3 gap-10'>
                 <div className="flex flex-col space-y-2 border-b border-gray-400 pb-2">
                   <span className="text-xs font-medium">Last Name</span>
-                  <span className='text-sm'>{user?.staff.information.last_name}</span>
+                  <span className='text-sm'>{user?.staff?.information.last_name || user?.student?.information.last_name}</span>
                 </div>
                 <div className="flex flex-col space-y-2 border-b border-gray-400 pb-2">
                   <span className="text-xs font-medium">First Name</span>
-                  <span className='text-sm'>{user?.staff.information.first_name}</span>
+                  <span className='text-sm'>{user?.staff?.information.first_name || user?.student?.information.first_name}</span>
                 </div>
                 <div className="flex flex-col space-y-2 border-b border-gray-400 pb-2">
                   <span className="text-xs font-medium">Middle Name</span>
-                  <span className='text-sm'>{user?.staff.information.middle_name ? user?.staff.information.middle_name : '-'}</span>
+                  <span className='text-sm'>{user?.staff?.information.middle_name ? user?.staff?.information.middle_name : '-'}</span>
                 </div>
                 <div className="flex flex-col space-y-2 border-b border-gray-400 pb-2">
                   <span className="text-xs font-medium">Gender</span>
-                  <span className='text-sm capitalize'>{user?.staff.information.gender}</span>
+                  <span className='text-sm capitalize'>{user?.staff?.information.gender || user?.student?.information.gender}</span>
                 </div>
                 <div className="flex flex-col space-y-2 border-b border-gray-400 pb-2">
                   <span className="text-xs font-medium">Email Address</span>
-                  <span className='text-sm'>{user?.staff.information.email_address}</span>
+                  <span className='text-sm'>{user?.staff?.information.email_address || user?.student?.information.email_address}</span>
                 </div>
                 <div className="flex flex-col space-y-2 border-b border-gray-400 pb-2">
                   <span className="text-xs font-medium">Phone Number</span>
-                  <span className='text-sm'>{user?.staff.information.contact_number ? user?.staff.information.contact_number : '-'}</span>
+                  <span className='text-sm'>{user?.staff?.information.contact_number ?? user?.student?.information.contact_number ?? '-'}</span>
                 </div>
               </div>
             </CardBody>

@@ -12,6 +12,8 @@ const AuthLayout = () => {
       return <Navigate to='/registrar/dashboard' />
     } else if (user?.role === 'cashier') {
       return <Navigate to='/cashier/dashboard' />
+    } else if (user?.role === 'student') {
+      return <Navigate to='/student/dashboard' />
     }
   }
 

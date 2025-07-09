@@ -26,10 +26,16 @@ import StaffInformation from './views/pages/default/registrar/staffs/Information
 import ForgotPassword from './views/pages/auth/ForgotPassword'
 import CreateNewPassword from './views/pages/auth/CreateNewPassword'
 import EmailVerification from './views/pages/auth/EmailVerification'
+import StudentDashboard from "./views/pages/default/student/dashboard/Dashboard"
+import MyDocument from "./views/pages/default/student/my-documents/MyDocument"
+import DocumentId from "./views/pages/default/student/my-documents/DocumentId"
+import MyCredential from "./views/pages/default/student/my-credentials/MyCredential"
+import StudentRequest from "./views/pages/default/student/my-credentials/Request"
+import RequestDetail from "./views/pages/default/student/my-credentials/RequestDetail"
 
 const App = () => {
-  const { token, user, email_address, otp } = useAuthContext()
-
+  const { token, user, email_address, otp, status } = useAuthContext()
+  
   return (
     <Routes>
 
@@ -78,6 +84,23 @@ const App = () => {
               <Route path='/cashier/credentials/requests' element={<CashierRequest />} />
               <Route path='/cashier/credentials/requests/:request_number' element={<CashierRequestDetail />} />
               <Route path='/cashier/credentials/reports' element={<CashierReport />} />
+            </>
+          )}
+
+          {user?.role === 'student' && (
+            <>
+              <Route path='/student/dashboard' element={<StudentDashboard />} />
+
+              <Route path='/student/my-documents' element={<MyDocument />} />
+              <Route path='/student/my-documents/:document_name/:document_id' element={<DocumentId />} />
+
+              {status && status === 'complete' && (
+                <>
+                <Route path='/student/my-credentials' element={<MyCredential />} />
+                <Route path='/student/my-credentials/requests' element={<StudentRequest />} />
+                <Route path='/student/my-credentials/request-detail/:request_number' element={<RequestDetail />} />
+                </>
+              )}
             </>
           )}
 

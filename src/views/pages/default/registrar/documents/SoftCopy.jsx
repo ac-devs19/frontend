@@ -132,8 +132,8 @@ const SoftCopy = () => {
               plugins={[lgThumbnail, lgZoom]}
               elementClassNames={'grid grid-cols-4 gap-4'}
             >
-              {submit.soft_copy?.record.map((copy) => (
-                <a href={url + copy.uri}>
+              {submit.soft_copy?.record.map((copy, index) => (
+                <a key={index} href={url + copy.uri}>
                   <img src={url + copy.uri} className="object-cover h-72 w-full rounded-xl" />
                 </a>
               ))}

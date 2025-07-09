@@ -318,7 +318,7 @@ const RequestDetail = () => {
               </CardHeader>
               <CardBody className='pt-4 space-y-4'>
                 {request.request_credential?.credential_purpose.map((credPurpose, index) => (
-                  <div className='flex items-center'>
+                  <div key={index} className='flex items-center'>
                     <span className='w-6'>{index + 1}</span>
                     <div className='flex flex-col space-y-1'>
                       <span>{credPurpose.purpose.purpose_name}</span>
