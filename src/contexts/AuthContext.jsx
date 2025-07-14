@@ -15,7 +15,7 @@ export const AuthContext = ({ children }) => {
   const navigate = useNavigate()
   const [status, setStatus] = useState(null)
 
-  const url = "http://192.168.0.11:8000/"
+  const url = import.meta.env.VITE_BASE_URL
 
   const setToken = (token) => {
     _setToken(token)
