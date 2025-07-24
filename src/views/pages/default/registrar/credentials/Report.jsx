@@ -21,6 +21,8 @@ const Report = () => {
   const [credentials, setCredentials] = useState([])
   const [purposes, setPurposes] = useState([])
   const [filteredReports, setFilteredReports] = useState([])
+  const [weekStartDate, setWeekStartDate] = useState(null)
+const [weekEndDate, setWeekEndDate] = useState(null)
 
   useEffect(() => {
     const loadReport = async () => {
@@ -290,11 +292,18 @@ const Report = () => {
         </DialogHeader>
         <DialogBody className="space-y-4">
           <div className='space-y-2'>
-            <span className='text-sm font-normal text-gray-900'>Date Range</span>
-            <div className='grid grid-cols-2 gap-4 max-sm:grid-cols-1'>
-              <Input value={fromDate} onChange={(e) => setFromDate(e.target.value)} label='From' type='month' />
-              <Input value={toDate} onChange={(e) => setToDate(e.target.value)} label='To' type='month' />
-            </div>
+            <span className='text-sm font-normal text-gray-900'>Monthly Range</span>
+              <div className='grid grid-cols-2 gap-4 max-sm:grid-cols-1'>
+                <Input value={fromDate} onChange={(e) => setFromDate(e.target.value)} label='From' type='month' />
+                <Input value={toDate} onChange={(e) => setToDate(e.target.value)} label='To' type='month' />
+              </div>
+          </div>
+          <div className='space-y-2'>
+            <span className='text-sm font-normal text-gray-900'>Weekly Range</span>
+              <div className='grid grid-cols-2 gap-4 max-sm:grid-cols-1'>
+                <Input value={weekStartDate} onChange={(e) => setWeekStartDate(e.target.value)} label='Week Start' type='date' />
+                <Input value={weekEndDate} onChange={(e) => setWeekEndDate(e.target.value)} label='Week End' type='date' />
+              </div>
           </div>
           <div className='grid grid-cols-2 gap-4 max-sm:grid-cols-1'>
             <Select value={credentialName} label='Credential Name' onChange={(val) => setCredentialName(val)}>
